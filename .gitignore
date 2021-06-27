@@ -1,0 +1,5 @@
+tmp/
+old/
+__pycache__/
+git_push.bat
+work/.ipynb_checkpoints/
