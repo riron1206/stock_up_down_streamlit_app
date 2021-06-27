@@ -1,2 +1,3 @@
+default-jre
 language-pack-ja
 japan*
