@@ -1,2 +1,2 @@
-language-pack-zh*
-japanese*
+language-pack-ja*
+japan*
