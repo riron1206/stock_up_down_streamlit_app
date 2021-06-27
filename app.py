@@ -20,9 +20,9 @@ import matplotlib.pyplot as plt
 # import seaborn as sns
 
 # 日本語対応
-font = {"family": "Yu Gothic"}
-matplotlib.rc("font", **font)
-plt.rcParams["font.family"] = "Yu Gothic"
+# font = {"family": "Yu Gothic"}
+# matplotlib.rc("font", **font)
+plt.rcParams["font.family"] = "IPAexGothic"  # "Yu Gothic"
 # sns.set(font='Yu Gothic')
 
 
