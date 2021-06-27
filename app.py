@@ -19,10 +19,10 @@ import matplotlib.pyplot as plt
 
 # import seaborn as sns
 
-# 日本語対応
+# 日本語対応 stleamlit share では日本語表記できない...
 # font = {"family": "Yu Gothic"}
 # matplotlib.rc("font", **font)
-plt.rcParams["font.family"] = "IPAexGothic"  # "Yu Gothic"
+plt.rcParams["font.family"] = "Yu Gothic"
 # sns.set(font='Yu Gothic')
 
 
@@ -174,22 +174,34 @@ def plot_sort_type_up_down(_df, sort_type, ascending=True):
     else:
         _sort_type = sort_type
 
+    # 日本語不可能な場合
     _df = _df.rename(
         columns={
-            f"翌日の始値上向き_{sort_type}": f"翌日の始値上向き_{_sort_type}",
-            f"翌日の始値下向き_{sort_type}": f"翌日の始値下向き_{_sort_type}",
+            f"翌日の始値上向き_{sort_type}": f"up_{sort_type}",
+            f"翌日の始値下向き_{sort_type}": f"down_{sort_type}",
         }
     )
-    _df = _df[[f"name", f"翌日の始値上向き_{_sort_type}", f"翌日の始値下向き_{_sort_type}"]].set_index(
-        "name"
+    _df = _df[[f"stock_id", f"up_{sort_type}", f"down_{sort_type}"]].set_index(
+        "stock_id"
     )
-    _df = _df.sort_values(by=f"翌日の始値上向き_{_sort_type}", ascending=ascending)
+    _df = _df.sort_values(by=f"up_{sort_type}", ascending=ascending)
+    # 日本語可能な場合
+    # _df = _df.rename(
+    #    columns={
+    #        f"翌日の始値上向き_{sort_type}": f"翌日の始値上向き_{_sort_type}",
+    #        f"翌日の始値下向き_{sort_type}": f"翌日の始値下向き_{_sort_type}",
+    #    }
+    # )
+    # _df = _df[[f"name", f"翌日の始値上向き_{_sort_type}", f"翌日の始値下向き_{_sort_type}"]].set_index("name")
+    # _df = _df.sort_values(by=f"翌日の始値上向き_{_sort_type}", ascending=ascending)
 
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
     _df.plot.barh(ax=ax)
-    ax.set_title(f"期間中の陽線陰線の{_sort_type}")
-    ax.set_xlabel("円")
+    ax.set_title(
+        f"{sort_type} of positive and negative lines during the period"
+    )  # ax.set_title(f"期間中の陽線陰線の{_sort_type}")
+    ax.set_xlabel("yen")  # ax.set_xlabel("円")
     # ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0)
 
     return fig
@@ -288,10 +300,4 @@ def main():
 
 
 if __name__ == "__main__":
-    from matplotlib import font_manager
-
-    for i in font_manager.fontManager.ttflist:
-        if ".ttc" in i.fname:
-            print(i)
-
     main()
