@@ -6,13 +6,10 @@ Usage:
     $ streamlit run ./app.py
 """
 import streamlit as st
-
+import traceback
 import glob
 import datetime
 from pathlib import Path
-
-# import traceback
-
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -103,8 +100,8 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
     dict_summary["始値の平均"] = int(df["始値"].mean())
 
     dict_summary["取引日数"] = all_count  # 行数
-    dict_summary["翌日の陽線/陰線の合計"] = all_sum  # 翌日の 陽線/陰線 の合計
-    dict_summary["翌日の陽線/陰線の平均"] = round(all_sum / all_count, 3)  # 翌日の 陽線/陰線 の平均
+    dict_summary["翌日の陽線陰線の合計"] = round(all_sum, 1)  # 翌日の 陽線/陰線 の合計
+    dict_summary["翌日の陽線陰線の平均"] = round(all_sum / all_count, 3)  # 翌日の 陽線/陰線 の平均
 
     # 翌日の始値上向き + 翌日陽線のみ
     dict_summary["up_posi_count"] = up_posi_count  # 行数
@@ -134,12 +131,12 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
         down_nega_sum / down_nega_count, 3
     )  # 翌日の 陽線/陰線 の平均
 
-    dict_summary["翌日の始値上向き_sum"] = up_sum  # 翌日の始値上向きの 陽線/陰線 の合計
+    dict_summary["翌日の始値上向き_sum"] = round(up_sum, 1)  # 翌日の始値上向きの 陽線/陰線 の合計
     dict_summary["翌日の始値上向き_mean"] = round(
         up_sum / (up_posi_count + up_nega_count), 3
     )  # 翌日の始値上向きの 陽線/陰線 の平均
 
-    dict_summary["翌日の始値下向き_sum"] = down_sum  # 翌日の始値下向きの 陽線/陰線 の合計
+    dict_summary["翌日の始値下向き_sum"] = round(down_sum, 1)  # 翌日の始値下向きの 陽線/陰線 の合計
     dict_summary["翌日の始値下向き_mean"] = round(
         down_sum / (down_posi_count + down_nega_count), 3
     )  # 翌日の始値下向きの 陽線/陰線 の平均
@@ -158,10 +155,10 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
         (down_posi_count + down_nega_count) / all_count * 100, 1
     )
 
-    dict_summary["翌日の始値上向きかつ陽線の割合"] = round(up_posi_count / all_count * 100, 1)
-    dict_summary["翌日の始値上向きかつ陰線の割合"] = round(up_nega_count / all_count * 100, 1)
-    dict_summary["翌日の始値下向きかつ陰線の割合"] = round(down_nega_count / all_count * 100, 1)
-    dict_summary["翌日の始値下向きかつ陽線の割合"] = round(down_posi_count / all_count * 100, 1)
+    dict_summary["翌日の始値上向きかつ陽線の割合(%)"] = round(up_posi_count / all_count * 100, 1)
+    dict_summary["翌日の始値上向きかつ陰線の割合(%)"] = round(up_nega_count / all_count * 100, 1)
+    dict_summary["翌日の始値下向きかつ陰線の割合(%)"] = round(down_nega_count / all_count * 100, 1)
+    dict_summary["翌日の始値下向きかつ陽線の割合(%)"] = round(down_posi_count / all_count * 100, 1)
 
     return dict_summary
 
@@ -195,7 +192,7 @@ def plot_sort_type_up_down(_df, sort_type, ascending=True):
     # _df = _df[[f"name", f"翌日の始値上向き_{_sort_type}", f"翌日の始値下向き_{_sort_type}"]].set_index("name")
     # _df = _df.sort_values(by=f"翌日の始値上向き_{_sort_type}", ascending=ascending)
 
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(10, 10 * (1 + int(_df.shape[0] / 50))))
     ax = fig.add_subplot(1, 1, 1)
     _df.plot.barh(ax=ax)
     ax.set_title(
@@ -226,14 +223,13 @@ def get_df_summary(
     df_summary = df_summary[
         [
             "stock_id",
-            "開始日",
-            "終了日",
+            # "開始日", "終了日",
             "取引日数",
             "開始日の始値",
             "終了日の始値",
             "始値の平均",
-            "翌日の陽線/陰線の合計",
-            "翌日の陽線/陰線の平均",
+            "翌日の陽線陰線の合計",
+            "翌日の陽線陰線の平均",
             # "up_posi_sum", "up_nega_sum", "down_posi_sum", "down_nega_sum",
             "翌日の始値上向き_sum",
             "翌日の始値下向き_sum",
@@ -242,10 +238,10 @@ def get_df_summary(
             "翌日の始値下向き_mean",
             # "翌日陽線の割合", "翌日陰線の割合",
             # "翌日の始値上向きの割合", "翌日の始値下向きの割合",
-            "翌日の始値上向きかつ陽線の割合",
-            "翌日の始値上向きかつ陰線の割合",
-            "翌日の始値下向きかつ陰線の割合",
-            "翌日の始値下向きかつ陽線の割合",
+            "翌日の始値上向きかつ陽線の割合(%)",
+            "翌日の始値上向きかつ陰線の割合(%)",
+            "翌日の始値下向きかつ陰線の割合(%)",
+            "翌日の始値下向きかつ陽線の割合(%)",
         ]
     ]
 
@@ -266,8 +262,8 @@ def main():
     st_end_date = st.sidebar.date_input(
         "終了日", datetime.datetime.strptime("2020-12-31", "%Y-%m-%d").date()
     )
-    st_price_limit = st.sidebar.slider("集計する1銘柄の株価の上限", 0, 100000, (0, 5000))
-    st_n_limit = st.sidebar.slider("表示する銘柄の件数", 1, 30, step=1, value=15)
+    st_price_limit = st.sidebar.number_input("集計する1銘柄の株価の上限（円）", 0, None, 5000)
+    st_n_limit = st.sidebar.slider("表示する銘柄の件数", 1, 100, step=1, value=15)
     st_sort_type = st.sidebar.selectbox("可視化する価格の種類", ("sum", "mean"))
 
     try:
@@ -277,8 +273,7 @@ def main():
         _df = df_summary[
             # (df_summary[f"翌日の始値上向き_{st_sort_type}"] > 0.0) &
             # (df_summary[f"翌日の始値下向き_{st_sort_type}"] > 0.0) &
-            (df_summary[f"始値の平均"] >= st_price_limit[0])
-            & (df_summary[f"始値の平均"] <= st_price_limit[1])  # 株価の高すぎる銘柄は除く
+            (df_summary[f"始値の平均"] <= st_price_limit)  # 株価の高すぎる銘柄は除く
         ].sort_values(by=f"翌日の始値上向き_{st_sort_type}", ascending=False)
 
         _df = _df.head(st_n_limit)
@@ -289,14 +284,16 @@ def main():
             _str = "平均値"
         _str = f"翌日の始値上向きの{_str}が上位の銘柄"
         st.markdown("### " + _str)
+
         # plot
         st.pyplot(plot_sort_type_up_down(_df, st_sort_type))
 
-        # table
-        st.table(_df)
+        # table/dataframe
+        st.table(_df.set_index("name"))
+        # st.dataframe(_df.set_index('name').style.highlight_max(axis=0))  # versionが古いためか?ハイライトできない
     except:
         st.markdown("## サイドバー値がおかしいためエラー")
-        # traceback.print_exc()
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
