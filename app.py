@@ -262,7 +262,8 @@ def main():
     st_end_date = st.sidebar.date_input(
         "終了日", datetime.datetime.strptime("2020-12-31", "%Y-%m-%d").date()
     )
-    st_price_limit = st.sidebar.number_input("集計する1銘柄の株価の上限（円）", 0, None, 5000)
+    st_price_limit_lower = st.sidebar.number_input("集計する1銘柄の株価の下限（円）", 0, None, 0)
+    st_price_limit_upper = st.sidebar.number_input("集計する1銘柄の株価の上限（円）", 0, None, 5000)
     st_n_limit = st.sidebar.slider("表示する銘柄の件数", 1, 100, step=1, value=15)
     st_sort_type = st.sidebar.selectbox("可視化する価格の種類", ("sum", "mean"))
 
@@ -273,7 +274,10 @@ def main():
         _df = df_summary[
             # (df_summary[f"翌日の始値上向き_{st_sort_type}"] > 0.0) &
             # (df_summary[f"翌日の始値下向き_{st_sort_type}"] > 0.0) &
-            (df_summary[f"始値の平均"] <= st_price_limit)  # 株価の高すぎる銘柄は除く
+            (df_summary[f"始値の平均"] >= st_price_limit_lower)
+            & (  # 株価の小さすぎる銘柄は除く
+                df_summary[f"始値の平均"] <= st_price_limit_upper
+            )  # 株価の高すぎる銘柄は除く
         ].sort_values(by=f"翌日の始値上向き_{st_sort_type}", ascending=False)
 
         _df = _df.head(st_n_limit)
