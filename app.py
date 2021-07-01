@@ -284,10 +284,16 @@ def main():
 
         if st_sort_type == "sum":
             _str = "合計値"
+            _str_up = "up_sum: 翌日の始値上向き_sum"
+            _str_down = "down_sum: 翌日の始値下向き_sum"
         else:
             _str = "平均値"
+            _str_up = "up_mean: 翌日の始値上向き_mean"
+            _str_down = "down_mean: 翌日の始値下向き_mean"
         _str = f"翌日の始値上向きの{_str}が上位の銘柄"
         st.markdown("### " + _str)
+        st.markdown("- " + _str_up)
+        st.markdown("- " + _str_down)
 
         # plot
         st.pyplot(plot_sort_type_up_down(_df, st_sort_type))
