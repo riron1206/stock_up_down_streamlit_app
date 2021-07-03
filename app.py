@@ -23,20 +23,32 @@ plt.rcParams["font.family"] = "Yu Gothic"
 # sns.set(font='Yu Gothic')
 
 
-stock_dir = "TOPIX100_data"
+#stock_dir = "TOPIX100_data"
+stock_dir = "yahoo225_data"
 stock_name_csv = "stock_name_TOPIX100.csv"
 
 
 def get_stock_df(stock_id):
     csv = stock_dir + "/" + str(stock_id) + ".csv"
+
+    ## TOPIX100_data
+    #df = pd.read_csv(
+    #    csv,
+    #    encoding="SHIFT-JIS",
+    #    sep="\t",
+    #    parse_dates=["日付"],
+    #    na_values=["-"],
+    #    dtype="float",
+    #)
+    # yahoo225_data
     df = pd.read_csv(
         csv,
         encoding="SHIFT-JIS",
-        sep="\t",
         parse_dates=["日付"],
         na_values=["-"],
         dtype="float",
     )
+
     df["銘柄"] = Path(csv).stem
 
     df = df.sort_values(by=["日付"])
@@ -257,14 +269,16 @@ def main():
 
     # サイドバー
     st_start_date = st.sidebar.date_input(
-        "開始日", datetime.datetime.strptime("2020-1-1", "%Y-%m-%d").date()
+        #"開始日", datetime.datetime.strptime("2020-1-1", "%Y-%m-%d").date()
+        "開始日", datetime.datetime.strptime("2021-1-1", "%Y-%m-%d").date()
     )
     st_end_date = st.sidebar.date_input(
-        "終了日", datetime.datetime.strptime("2020-12-31", "%Y-%m-%d").date()
+        #"終了日", datetime.datetime.strptime("2020-12-31", "%Y-%m-%d").date()
+        "終了日", datetime.datetime.strptime("2021-7-2", "%Y-%m-%d").date()
     )
     st_price_limit_lower = st.sidebar.number_input("集計する1銘柄の株価の下限（円）", 0, None, 0)
     st_price_limit_upper = st.sidebar.number_input("集計する1銘柄の株価の上限（円）", 0, None, 5000)
-    st_n_limit = st.sidebar.slider("表示する銘柄の件数", 1, 100, step=1, value=15)
+    st_n_limit = st.sidebar.slider("表示する銘柄の件数", 1, 225, step=1, value=225)
     st_sort_type = st.sidebar.selectbox("可視化する価格の種類", ("sum", "mean"))
 
     try:
