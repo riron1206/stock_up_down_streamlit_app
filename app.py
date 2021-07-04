@@ -316,7 +316,6 @@ def main():
             st_stock_ids = np.intersect1d(
                 np.array(st_stock_ids), id_225
             )  # 日経225の銘柄コードだけにする
-            print(st_stock_ids)
             df_summary = get_df_summary(
                 str(st_start_date), str(st_end_date), stock_ids=st_stock_ids
             )
