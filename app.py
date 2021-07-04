@@ -196,7 +196,10 @@ def plot_sort_type_up_down(_df, sort_type, ascending=True):
     _df = _df[[f"stock_id", f"up_{sort_type}", f"down_{sort_type}"]].set_index(
         "stock_id"
     )
-    _df = _df.sort_values(by=f"up_{sort_type}", ascending=ascending)
+    if ascending is not None:
+        _df = _df.sort_values(by=f"up_{sort_type}", ascending=ascending)
+    else:
+        _df = _df.sort_values(by=f"stock_id", ascending=False)
     ## 日本語可能な場合
     # if sort_type == "sum":
     #    _sort_type = "合計"
@@ -300,6 +303,7 @@ def main():
     st_price_limit_upper = st.sidebar.number_input("集計する1銘柄の株価の上限（円）", 0, None, 5000)
     st_n_limit = st.sidebar.slider("表示する銘柄の件数", 1, 225, step=1, value=225)
     st_sort_type = st.sidebar.selectbox("可視化する価格の種類", ("sum", "mean"))
+    st_is_sort = st.sidebar.selectbox("指定の種類の上位順でソートするか", (False, True))
     st_stock_ids = st.sidebar.text_area("表示する銘柄コード指定。複数指定する場合は「,」で区切ってください", "")
 
     try:
@@ -320,14 +324,24 @@ def main():
                 str(st_start_date), str(st_end_date), stock_ids=st_stock_ids
             )
 
-        _df = df_summary[
-            # (df_summary[f"翌日の始値上寄り_{st_sort_type}"] > 0.0) &
-            # (df_summary[f"翌日の始値下寄り_{st_sort_type}"] > 0.0) &
-            (df_summary[f"始値の平均"] >= st_price_limit_lower)
-            & (  # 株価の小さすぎる銘柄は除く
-                df_summary[f"始値の平均"] <= st_price_limit_upper
-            )  # 株価の高すぎる銘柄は除く
-        ].sort_values(by=f"翌日の始値上寄り_{st_sort_type}", ascending=False)
+        if st_is_sort:
+            _df = df_summary[
+                # (df_summary[f"翌日の始値上寄り_{st_sort_type}"] > 0.0) &
+                # (df_summary[f"翌日の始値下寄り_{st_sort_type}"] > 0.0) &
+                (df_summary[f"始値の平均"] >= st_price_limit_lower)
+                & (  # 株価の小さすぎる銘柄は除く
+                    df_summary[f"始値の平均"] <= st_price_limit_upper
+                )  # 株価の高すぎる銘柄は除く
+            ].sort_values(by=f"翌日の始値上寄り_{st_sort_type}", ascending=False)
+        else:
+            _df = df_summary[
+                # (df_summary[f"翌日の始値上寄り_{st_sort_type}"] > 0.0) &
+                # (df_summary[f"翌日の始値下寄り_{st_sort_type}"] > 0.0) &
+                (df_summary[f"始値の平均"] >= st_price_limit_lower)
+                & (  # 株価の小さすぎる銘柄は除く
+                    df_summary[f"始値の平均"] <= st_price_limit_upper
+                )  # 株価の高すぎる銘柄は除く
+            ].sort_values(by=f"stock_id", ascending=True)
 
         _df = _df.head(st_n_limit)
 
@@ -345,7 +359,10 @@ def main():
         st.markdown("- " + _str_down)
 
         # plot
-        st.pyplot(plot_sort_type_up_down(_df, st_sort_type))
+        if st_is_sort:
+            st.pyplot(plot_sort_type_up_down(_df, st_sort_type))
+        else:
+            st.pyplot(plot_sort_type_up_down(_df, st_sort_type, ascending=None))
 
         # table/dataframe
         st.table(_df.set_index("name"))
