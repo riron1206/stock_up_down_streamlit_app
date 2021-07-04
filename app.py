@@ -9,6 +9,7 @@ import streamlit as st
 import traceback
 import glob
 import datetime
+import numpy as np
 from pathlib import Path
 import pandas as pd
 import matplotlib
@@ -23,7 +24,7 @@ plt.rcParams["font.family"] = "Yu Gothic"
 # sns.set(font='Yu Gothic')
 
 
-#stock_dir = "TOPIX100_data"
+# stock_dir = "TOPIX100_data"
 stock_dir = "yahoo225_data"
 stock_name_csv = "stock_name_TOPIX100.csv"
 
@@ -32,14 +33,14 @@ def get_stock_df(stock_id):
     csv = stock_dir + "/" + str(stock_id) + ".csv"
 
     ## TOPIX100_data
-    #df = pd.read_csv(
+    # df = pd.read_csv(
     #    csv,
     #    encoding="SHIFT-JIS",
     #    sep="\t",
     #    parse_dates=["日付"],
     #    na_values=["-"],
     #    dtype="float",
-    #)
+    # )
     # yahoo225_data
     df = pd.read_csv(
         csv,
@@ -118,39 +119,43 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
     # 翌日の始値上向き + 翌日陽線のみ
     dict_summary["up_posi_count"] = up_posi_count  # 行数
     dict_summary["up_posi_sum"] = up_posi_sum  # 翌日の 陽線/陰線 の合計
-    dict_summary["up_posi_mean"] = round(
-        up_posi_sum / up_posi_count, 3
+    dict_summary["up_posi_mean"] = (
+        np.nan if up_posi_count == 0 else round(up_posi_sum / up_posi_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
     # 翌日の始値上向き + 翌日陰線のみ
     dict_summary["up_nega_count"] = up_nega_count  # 行数
     dict_summary["up_nega_sum"] = up_nega_sum  # 翌日の 陽線/陰線 の合計
-    dict_summary["up_nega_mean"] = round(
-        up_nega_sum / up_nega_count, 3
+    dict_summary["up_nega_mean"] = (
+        np.nan if up_nega_count == 0 else round(up_nega_sum / up_nega_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
     # 翌日の始値下向き + 翌日陽線のみ
     dict_summary["down_posi_count"] = down_posi_count  # 行数
     dict_summary["down_posi_sum"] = down_posi_sum  # 翌日の 陽線/陰線 の合計
-    dict_summary["down_posi_mean"] = round(
-        down_posi_sum / down_posi_count, 3
+    dict_summary["down_posi_mean"] = (
+        np.nan if down_posi_count == 0 else round(down_posi_sum / down_posi_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
     # 翌日の始値下向き + 翌日陰線のみ
     dict_summary["down_nega_count"] = down_nega_count  # 行数
     dict_summary["down_nega_sum"] = down_nega_sum  # 翌日の 陽線/陰線 の合計
-    dict_summary["down_nega_mean"] = round(
-        down_nega_sum / down_nega_count, 3
+    dict_summary["down_nega_mean"] = (
+        np.nan if down_nega_count == 0 else round(down_nega_sum / down_nega_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
     dict_summary["翌日の始値上向き_sum"] = round(up_sum, 1)  # 翌日の始値上向きの 陽線/陰線 の合計
-    dict_summary["翌日の始値上向き_mean"] = round(
-        up_sum / (up_posi_count + up_nega_count), 3
+    dict_summary["翌日の始値上向き_mean"] = (
+        np.nan
+        if up_posi_count + up_nega_count == 0
+        else round(up_sum / (up_posi_count + up_nega_count), 3)
     )  # 翌日の始値上向きの 陽線/陰線 の平均
 
     dict_summary["翌日の始値下向き_sum"] = round(down_sum, 1)  # 翌日の始値下向きの 陽線/陰線 の合計
-    dict_summary["翌日の始値下向き_mean"] = round(
-        down_sum / (down_posi_count + down_nega_count), 3
+    dict_summary["翌日の始値下向き_mean"] = (
+        np.nan
+        if down_posi_count + down_nega_count == 0
+        else round(down_sum / (down_posi_count + down_nega_count), 3)
     )  # 翌日の始値下向きの 陽線/陰線 の平均
 
     dict_summary["翌日陽線の割合"] = round(
@@ -265,16 +270,19 @@ def get_df_summary(
 
 
 def main():
-    st.markdown("# TOPIX100の各銘柄について翌日の陽線陰線の値を集計")
+    # st.markdown("# TOPIX100の各銘柄について翌日の陽線陰線の値を集計")
+    st.markdown("# 日経225の各銘柄について翌日の陽線陰線の値を集計")
 
     # サイドバー
     st_start_date = st.sidebar.date_input(
-        #"開始日", datetime.datetime.strptime("2020-1-1", "%Y-%m-%d").date()
-        "開始日", datetime.datetime.strptime("2021-1-1", "%Y-%m-%d").date()
+        # "開始日", datetime.datetime.strptime("2020-1-1", "%Y-%m-%d").date()
+        "開始日",
+        datetime.datetime.strptime("2021-1-1", "%Y-%m-%d").date(),
     )
     st_end_date = st.sidebar.date_input(
-        #"終了日", datetime.datetime.strptime("2020-12-31", "%Y-%m-%d").date()
-        "終了日", datetime.datetime.strptime("2021-7-2", "%Y-%m-%d").date()
+        # "終了日", datetime.datetime.strptime("2020-12-31", "%Y-%m-%d").date()
+        "終了日",
+        datetime.datetime.strptime("2021-7-2", "%Y-%m-%d").date(),
     )
     st_price_limit_lower = st.sidebar.number_input("集計する1銘柄の株価の下限（円）", 0, None, 0)
     st_price_limit_upper = st.sidebar.number_input("集計する1銘柄の株価の上限（円）", 0, None, 5000)
