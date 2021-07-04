@@ -5,7 +5,9 @@ Usage:
     $ conda activate stock
     $ streamlit run ./app.py
 """
+# $ cd C:\Users\81908\MyGitHub\stock_up_down_streamlit_app
 import streamlit as st
+import re
 import traceback
 import glob
 import datetime
@@ -26,7 +28,10 @@ plt.rcParams["font.family"] = "Yu Gothic"
 
 # stock_dir = "TOPIX100_data"
 stock_dir = "yahoo225_data"
-stock_name_csv = "stock_name_TOPIX100.csv"
+stock_name_csv = "stock_name_225.csv"
+stock_name = pd.read_csv(stock_name_csv, encoding="SHIFT-JIS", dtype="str")
+id_225 = stock_name["stock_id"].values
+name_225 = stock_name["name"].values
 
 
 def get_stock_df(stock_id):
@@ -181,13 +186,6 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
 
 
 def plot_sort_type_up_down(_df, sort_type, ascending=True):
-    if sort_type == "sum":
-        _sort_type = "合計"
-    elif sort_type == "mean":
-        _sort_type = "平均"
-    else:
-        _sort_type = sort_type
-
     # 日本語不可能な場合
     _df = _df.rename(
         columns={
@@ -199,7 +197,13 @@ def plot_sort_type_up_down(_df, sort_type, ascending=True):
         "stock_id"
     )
     _df = _df.sort_values(by=f"up_{sort_type}", ascending=ascending)
-    # 日本語可能な場合
+    ## 日本語可能な場合
+    # if sort_type == "sum":
+    #    _sort_type = "合計"
+    # elif sort_type == "mean":
+    #    _sort_type = "平均"
+    # else:
+    #    _sort_type = sort_type
     # _df = _df.rename(
     #    columns={
     #        f"翌日の始値上向き_{sort_type}": f"翌日の始値上向き_{_sort_type}",
@@ -223,9 +227,17 @@ def plot_sort_type_up_down(_df, sort_type, ascending=True):
 
 @st.cache(allow_output_mutation=True)
 def get_df_summary(
-    start_date, end_date, stock_dir=stock_dir, stock_name_csv=stock_name_csv
+    start_date,
+    end_date,
+    stock_dir=stock_dir,
+    stock_name_csv=stock_name_csv,
+    stock_ids=[],
 ):
-    stock_ids = [Path(csv).stem for csv in glob.glob(stock_dir + "/*csv")]
+    stock_ids = (
+        [Path(csv).stem for csv in glob.glob(stock_dir + "/*csv")]
+        if len(stock_ids) == 0
+        else stock_ids
+    )
     df_summary = None
     for stock_id in stock_ids:
         dict_summary = up_down_summary(
@@ -263,7 +275,7 @@ def get_df_summary(
     ]
 
     # 銘柄名つける
-    stock_name = pd.read_csv(stock_name_csv, encoding="SHIFT-JIS", dtype="str")
+    # stock_name = pd.read_csv(stock_name_csv, encoding="SHIFT-JIS", dtype="str")
     df_summary = pd.merge(stock_name, df_summary, on="stock_id")
 
     return df_summary
@@ -288,10 +300,26 @@ def main():
     st_price_limit_upper = st.sidebar.number_input("集計する1銘柄の株価の上限（円）", 0, None, 5000)
     st_n_limit = st.sidebar.slider("表示する銘柄の件数", 1, 225, step=1, value=225)
     st_sort_type = st.sidebar.selectbox("可視化する価格の種類", ("sum", "mean"))
+    st_stock_ids = st.sidebar.text_area("表示する銘柄コード指定。複数指定する場合は「,」で区切ってください", "")
 
     try:
         # 集計したデータフレーム
-        df_summary = get_df_summary(str(st_start_date), str(st_end_date))
+        if st_stock_ids == "":
+            df_summary = get_df_summary(str(st_start_date), str(st_end_date))
+        else:
+            st_stock_ids = [
+                re.findall(r"\d+", x.strip()) for x in st_stock_ids.split(",")
+            ]  # カンマ区切りのlistにする+数字だけ残す
+            st_stock_ids = [
+                flatten for inner in st_stock_ids for flatten in inner
+            ]  # 1次元化
+            st_stock_ids = np.intersect1d(
+                np.array(st_stock_ids), id_225
+            )  # 日経225の銘柄コードだけにする
+            print(st_stock_ids)
+            df_summary = get_df_summary(
+                str(st_start_date), str(st_end_date), stock_ids=st_stock_ids
+            )
 
         _df = df_summary[
             # (df_summary[f"翌日の始値上向き_{st_sort_type}"] > 0.0) &
