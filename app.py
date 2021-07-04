@@ -351,8 +351,6 @@ def main():
             _str_up = "up_mean: 翌日の始値上寄り_mean"
             _str_down = "down_mean: 翌日の始値下寄り_mean"
         _str = f"翌日の始値上寄りの{_str}が上位の銘柄"
-        if st_is_sort:
-            st.markdown("### " + _str)
         st.markdown("- " + _str_up)
         st.markdown("- " + _str_down)
 
