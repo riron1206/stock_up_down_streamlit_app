@@ -326,8 +326,6 @@ def main():
 
         if st_is_sort:
             _df = df_summary[
-                # (df_summary[f"翌日の始値上寄り_{st_sort_type}"] > 0.0) &
-                # (df_summary[f"翌日の始値下寄り_{st_sort_type}"] > 0.0) &
                 (df_summary[f"始値の平均"] >= st_price_limit_lower)
                 & (  # 株価の小さすぎる銘柄は除く
                     df_summary[f"始値の平均"] <= st_price_limit_upper
@@ -335,8 +333,6 @@ def main():
             ].sort_values(by=f"翌日の始値上寄り_{st_sort_type}", ascending=False)
         else:
             _df = df_summary[
-                # (df_summary[f"翌日の始値上寄り_{st_sort_type}"] > 0.0) &
-                # (df_summary[f"翌日の始値下寄り_{st_sort_type}"] > 0.0) &
                 (df_summary[f"始値の平均"] >= st_price_limit_lower)
                 & (  # 株価の小さすぎる銘柄は除く
                     df_summary[f"始値の平均"] <= st_price_limit_upper
@@ -345,18 +341,19 @@ def main():
 
         _df = _df.head(st_n_limit)
 
-        if st_sort_type == "sum":
-            _str = "合計値"
-            _str_up = "up_sum: 翌日の始値上寄り_sum"
-            _str_down = "down_sum: 翌日の始値下寄り_sum"
-        else:
-            _str = "平均値"
-            _str_up = "up_mean: 翌日の始値上寄り_mean"
-            _str_down = "down_mean: 翌日の始値下寄り_mean"
-        _str = f"翌日の始値上寄りの{_str}が上位の銘柄"
-        st.markdown("### " + _str)
-        st.markdown("- " + _str_up)
-        st.markdown("- " + _str_down)
+        if st_is_sort:
+            if st_sort_type == "sum":
+                _str = "合計値"
+                _str_up = "up_sum: 翌日の始値上寄り_sum"
+                _str_down = "down_sum: 翌日の始値下寄り_sum"
+            else:
+                _str = "平均値"
+                _str_up = "up_mean: 翌日の始値上寄り_mean"
+                _str_down = "down_mean: 翌日の始値下寄り_mean"
+            _str = f"翌日の始値上寄りの{_str}が上位の銘柄"
+            st.markdown("### " + _str)
+            st.markdown("- " + _str_up)
+            st.markdown("- " + _str_down)
 
         # plot
         if st_is_sort:
