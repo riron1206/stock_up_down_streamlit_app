@@ -341,19 +341,20 @@ def main():
 
         _df = _df.head(st_n_limit)
 
+
+        if st_sort_type == "sum":
+            _str = "合計値"
+            _str_up = "up_sum: 翌日の始値上寄り_sum"
+            _str_down = "down_sum: 翌日の始値下寄り_sum"
+        else:
+            _str = "平均値"
+            _str_up = "up_mean: 翌日の始値上寄り_mean"
+            _str_down = "down_mean: 翌日の始値下寄り_mean"
+        _str = f"翌日の始値上寄りの{_str}が上位の銘柄"
         if st_is_sort:
-            if st_sort_type == "sum":
-                _str = "合計値"
-                _str_up = "up_sum: 翌日の始値上寄り_sum"
-                _str_down = "down_sum: 翌日の始値下寄り_sum"
-            else:
-                _str = "平均値"
-                _str_up = "up_mean: 翌日の始値上寄り_mean"
-                _str_down = "down_mean: 翌日の始値下寄り_mean"
-            _str = f"翌日の始値上寄りの{_str}が上位の銘柄"
             st.markdown("### " + _str)
-            st.markdown("- " + _str_up)
-            st.markdown("- " + _str_down)
+        st.markdown("- " + _str_up)
+        st.markdown("- " + _str_down)
 
         # plot
         if st_is_sort:
