@@ -1,6 +1,6 @@
 """
-TOPIX100 の各銘柄について以下の値を集計し、「寄付きが上向き/下向き」かどうかで銘柄の傾向に違いがあるか確認する
-翌日の始値上向き(up)/下向き(down)の陽線(posi)/陰線(nega)の合計値, 平均値, 行数
+TOPIX100 の各銘柄について以下の値を集計し、「寄付きが上寄り/下寄り」かどうかで銘柄の傾向に違いがあるか確認する
+翌日の始値上寄り(up)/下寄り(down)の陽線(posi)/陰線(nega)の合計値, 平均値, 行数
 Usage:
     $ conda activate stock
     $ streamlit run ./app.py
@@ -82,30 +82,30 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
     all_count = df.shape[0]
     all_sum = sum(df["翌日の終値-翌日の始値"])
 
-    # 翌日の始値上向き + 翌日陽線のみ
+    # 翌日の始値上寄り + 翌日陽線のみ
     df_up_posi = df[(df["翌日の始値-当日の終値"] > 0.0) & (df["翌日の終値-翌日の始値"] > 0.0)]
     up_posi_count = df_up_posi.shape[0]
     up_posi_sum = sum(df_up_posi["翌日の終値-翌日の始値"])
 
-    # 翌日の始値上向き + 翌日陰線のみ
+    # 翌日の始値上寄り + 翌日陰線のみ
     df_up_nega = df[(df["翌日の始値-当日の終値"] > 0.0) & (df["翌日の終値-翌日の始値"] < 0.0)]
     up_nega_count = df_up_nega.shape[0]
     up_nega_sum = sum(df_up_nega["翌日の終値-翌日の始値"])
 
-    # 翌日の始値下向き + 翌日陽線のみ
+    # 翌日の始値下寄り + 翌日陽線のみ
     df_down_posi = df[(df["翌日の始値-当日の終値"] < 0.0) & (df["翌日の終値-翌日の始値"] > 0.0)]
     down_posi_count = df_down_posi.shape[0]
     down_posi_sum = sum(df_down_posi["翌日の終値-翌日の始値"])
 
-    # 翌日の始値下向き + 翌日陰線のみ
+    # 翌日の始値下寄り + 翌日陰線のみ
     df_down_nega = df[(df["翌日の始値-当日の終値"] < 0.0) & (df["翌日の終値-翌日の始値"] < 0.0)]
     down_nega_count = df_down_nega.shape[0]
     down_nega_sum = sum(df_down_nega["翌日の終値-翌日の始値"])
 
-    # 翌日の始値上向きの 陽線/陰線 の合計
+    # 翌日の始値上寄りの 陽線/陰線 の合計
     up_sum = up_posi_sum + up_nega_sum
 
-    # 翌日の始値下向きの 陽線/陰線 の合計
+    # 翌日の始値下寄りの 陽線/陰線 の合計
     down_sum = down_posi_sum + down_nega_sum
 
     dict_summary = dict()
@@ -121,47 +121,47 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
     dict_summary["翌日の陽線陰線の合計"] = round(all_sum, 1)  # 翌日の 陽線/陰線 の合計
     dict_summary["翌日の陽線陰線の平均"] = round(all_sum / all_count, 3)  # 翌日の 陽線/陰線 の平均
 
-    # 翌日の始値上向き + 翌日陽線のみ
+    # 翌日の始値上寄り + 翌日陽線のみ
     dict_summary["up_posi_count"] = up_posi_count  # 行数
     dict_summary["up_posi_sum"] = up_posi_sum  # 翌日の 陽線/陰線 の合計
     dict_summary["up_posi_mean"] = (
         np.nan if up_posi_count == 0 else round(up_posi_sum / up_posi_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
-    # 翌日の始値上向き + 翌日陰線のみ
+    # 翌日の始値上寄り + 翌日陰線のみ
     dict_summary["up_nega_count"] = up_nega_count  # 行数
     dict_summary["up_nega_sum"] = up_nega_sum  # 翌日の 陽線/陰線 の合計
     dict_summary["up_nega_mean"] = (
         np.nan if up_nega_count == 0 else round(up_nega_sum / up_nega_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
-    # 翌日の始値下向き + 翌日陽線のみ
+    # 翌日の始値下寄り + 翌日陽線のみ
     dict_summary["down_posi_count"] = down_posi_count  # 行数
     dict_summary["down_posi_sum"] = down_posi_sum  # 翌日の 陽線/陰線 の合計
     dict_summary["down_posi_mean"] = (
         np.nan if down_posi_count == 0 else round(down_posi_sum / down_posi_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
-    # 翌日の始値下向き + 翌日陰線のみ
+    # 翌日の始値下寄り + 翌日陰線のみ
     dict_summary["down_nega_count"] = down_nega_count  # 行数
     dict_summary["down_nega_sum"] = down_nega_sum  # 翌日の 陽線/陰線 の合計
     dict_summary["down_nega_mean"] = (
         np.nan if down_nega_count == 0 else round(down_nega_sum / down_nega_count, 3)
     )  # 翌日の 陽線/陰線 の平均
 
-    dict_summary["翌日の始値上向き_sum"] = round(up_sum, 1)  # 翌日の始値上向きの 陽線/陰線 の合計
-    dict_summary["翌日の始値上向き_mean"] = (
+    dict_summary["翌日の始値上寄り_sum"] = round(up_sum, 1)  # 翌日の始値上寄りの 陽線/陰線 の合計
+    dict_summary["翌日の始値上寄り_mean"] = (
         np.nan
         if up_posi_count + up_nega_count == 0
         else round(up_sum / (up_posi_count + up_nega_count), 3)
-    )  # 翌日の始値上向きの 陽線/陰線 の平均
+    )  # 翌日の始値上寄りの 陽線/陰線 の平均
 
-    dict_summary["翌日の始値下向き_sum"] = round(down_sum, 1)  # 翌日の始値下向きの 陽線/陰線 の合計
-    dict_summary["翌日の始値下向き_mean"] = (
+    dict_summary["翌日の始値下寄り_sum"] = round(down_sum, 1)  # 翌日の始値下寄りの 陽線/陰線 の合計
+    dict_summary["翌日の始値下寄り_mean"] = (
         np.nan
         if down_posi_count + down_nega_count == 0
         else round(down_sum / (down_posi_count + down_nega_count), 3)
-    )  # 翌日の始値下向きの 陽線/陰線 の平均
+    )  # 翌日の始値下寄りの 陽線/陰線 の平均
 
     dict_summary["翌日陽線の割合"] = round(
         (up_posi_count + down_posi_count) / all_count * 100, 1
@@ -170,17 +170,17 @@ def up_down_summary(stock_id, start_date="2020-01-01", end_date="2020-12-31"):
         (up_nega_count + down_nega_count) / all_count * 100, 1
     )  # 翌日陰線の割合
 
-    dict_summary["翌日の始値上向きの割合"] = round(
+    dict_summary["翌日の始値上寄りの割合"] = round(
         (up_posi_count + up_nega_count) / all_count * 100, 1
     )
-    dict_summary["翌日の始値下向きの割合"] = round(
+    dict_summary["翌日の始値下寄りの割合"] = round(
         (down_posi_count + down_nega_count) / all_count * 100, 1
     )
 
-    dict_summary["翌日の始値上向きかつ陽線の割合(%)"] = round(up_posi_count / all_count * 100, 1)
-    dict_summary["翌日の始値上向きかつ陰線の割合(%)"] = round(up_nega_count / all_count * 100, 1)
-    dict_summary["翌日の始値下向きかつ陰線の割合(%)"] = round(down_nega_count / all_count * 100, 1)
-    dict_summary["翌日の始値下向きかつ陽線の割合(%)"] = round(down_posi_count / all_count * 100, 1)
+    dict_summary["翌日の始値上寄りかつ陽線の割合(%)"] = round(up_posi_count / all_count * 100, 1)
+    dict_summary["翌日の始値上寄りかつ陰線の割合(%)"] = round(up_nega_count / all_count * 100, 1)
+    dict_summary["翌日の始値下寄りかつ陰線の割合(%)"] = round(down_nega_count / all_count * 100, 1)
+    dict_summary["翌日の始値下寄りかつ陽線の割合(%)"] = round(down_posi_count / all_count * 100, 1)
 
     return dict_summary
 
@@ -189,8 +189,8 @@ def plot_sort_type_up_down(_df, sort_type, ascending=True):
     # 日本語不可能な場合
     _df = _df.rename(
         columns={
-            f"翌日の始値上向き_{sort_type}": f"up_{sort_type}",
-            f"翌日の始値下向き_{sort_type}": f"down_{sort_type}",
+            f"翌日の始値上寄り_{sort_type}": f"up_{sort_type}",
+            f"翌日の始値下寄り_{sort_type}": f"down_{sort_type}",
         }
     )
     _df = _df[[f"stock_id", f"up_{sort_type}", f"down_{sort_type}"]].set_index(
@@ -206,12 +206,12 @@ def plot_sort_type_up_down(_df, sort_type, ascending=True):
     #    _sort_type = sort_type
     # _df = _df.rename(
     #    columns={
-    #        f"翌日の始値上向き_{sort_type}": f"翌日の始値上向き_{_sort_type}",
-    #        f"翌日の始値下向き_{sort_type}": f"翌日の始値下向き_{_sort_type}",
+    #        f"翌日の始値上寄り_{sort_type}": f"翌日の始値上寄り_{_sort_type}",
+    #        f"翌日の始値下寄り_{sort_type}": f"翌日の始値下寄り_{_sort_type}",
     #    }
     # )
-    # _df = _df[[f"name", f"翌日の始値上向き_{_sort_type}", f"翌日の始値下向き_{_sort_type}"]].set_index("name")
-    # _df = _df.sort_values(by=f"翌日の始値上向き_{_sort_type}", ascending=ascending)
+    # _df = _df[[f"name", f"翌日の始値上寄り_{_sort_type}", f"翌日の始値下寄り_{_sort_type}"]].set_index("name")
+    # _df = _df.sort_values(by=f"翌日の始値上寄り_{_sort_type}", ascending=ascending)
 
     fig = plt.figure(figsize=(10, 10 * (1 + int(_df.shape[0] / 50))))
     ax = fig.add_subplot(1, 1, 1)
@@ -260,17 +260,17 @@ def get_df_summary(
             "翌日の陽線陰線の合計",
             "翌日の陽線陰線の平均",
             # "up_posi_sum", "up_nega_sum", "down_posi_sum", "down_nega_sum",
-            "翌日の始値上向き_sum",
-            "翌日の始値下向き_sum",
+            "翌日の始値上寄り_sum",
+            "翌日の始値下寄り_sum",
             # "up_posi_mean", "up_nega_mean", "down_posi_mean", "down_nega_mean",
-            "翌日の始値上向き_mean",
-            "翌日の始値下向き_mean",
+            "翌日の始値上寄り_mean",
+            "翌日の始値下寄り_mean",
             # "翌日陽線の割合", "翌日陰線の割合",
-            # "翌日の始値上向きの割合", "翌日の始値下向きの割合",
-            "翌日の始値上向きかつ陽線の割合(%)",
-            "翌日の始値上向きかつ陰線の割合(%)",
-            "翌日の始値下向きかつ陰線の割合(%)",
-            "翌日の始値下向きかつ陽線の割合(%)",
+            # "翌日の始値上寄りの割合", "翌日の始値下寄りの割合",
+            "翌日の始値上寄りかつ陽線の割合(%)",
+            "翌日の始値上寄りかつ陰線の割合(%)",
+            "翌日の始値下寄りかつ陰線の割合(%)",
+            "翌日の始値下寄りかつ陽線の割合(%)",
         ]
     ]
 
@@ -321,25 +321,25 @@ def main():
             )
 
         _df = df_summary[
-            # (df_summary[f"翌日の始値上向き_{st_sort_type}"] > 0.0) &
-            # (df_summary[f"翌日の始値下向き_{st_sort_type}"] > 0.0) &
+            # (df_summary[f"翌日の始値上寄り_{st_sort_type}"] > 0.0) &
+            # (df_summary[f"翌日の始値下寄り_{st_sort_type}"] > 0.0) &
             (df_summary[f"始値の平均"] >= st_price_limit_lower)
             & (  # 株価の小さすぎる銘柄は除く
                 df_summary[f"始値の平均"] <= st_price_limit_upper
             )  # 株価の高すぎる銘柄は除く
-        ].sort_values(by=f"翌日の始値上向き_{st_sort_type}", ascending=False)
+        ].sort_values(by=f"翌日の始値上寄り_{st_sort_type}", ascending=False)
 
         _df = _df.head(st_n_limit)
 
         if st_sort_type == "sum":
             _str = "合計値"
-            _str_up = "up_sum: 翌日の始値上向き_sum"
-            _str_down = "down_sum: 翌日の始値下向き_sum"
+            _str_up = "up_sum: 翌日の始値上寄り_sum"
+            _str_down = "down_sum: 翌日の始値下寄り_sum"
         else:
             _str = "平均値"
-            _str_up = "up_mean: 翌日の始値上向き_mean"
-            _str_down = "down_mean: 翌日の始値下向き_mean"
-        _str = f"翌日の始値上向きの{_str}が上位の銘柄"
+            _str_up = "up_mean: 翌日の始値上寄り_mean"
+            _str_down = "down_mean: 翌日の始値下寄り_mean"
+        _str = f"翌日の始値上寄りの{_str}が上位の銘柄"
         st.markdown("### " + _str)
         st.markdown("- " + _str_up)
         st.markdown("- " + _str_down)
